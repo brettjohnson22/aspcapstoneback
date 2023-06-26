@@ -21,15 +21,21 @@ namespace FullStackAuth_WebAPI.Extensions
                         .AllowAnyHeader());
             });
 
-        public static void ConfigureMySqlContext(this IServiceCollection services, IConfiguration configuration) { 
-            var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        var serverVersion = new MySqlServerVersion(new Version(8, 0, 31));
-        services.AddDbContext<ApplicationDbContext>(dbContextOptions => dbContextOptions
-        .UseMySql(connectionString, serverVersion)
-            .LogTo(Console.WriteLine, LogLevel.Information)
-            .EnableSensitiveDataLogging()
-            .EnableDetailedErrors());
-            }
+        //public static void ConfigureMySqlContext(this IServiceCollection services, IConfiguration configuration) { 
+        //    var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        //var serverVersion = new MySqlServerVersion(new Version(8, 0, 31));
+        //services.AddDbContext<ApplicationDbContext>(dbContextOptions => dbContextOptions
+        //.UseMySql(connectionString, serverVersion)
+        //    .LogTo(Console.WriteLine, LogLevel.Information)
+        //    .EnableSensitiveDataLogging()
+        //    .EnableDetailedErrors());
+        //    }
+
+
+        public static void ConfigureMySqlContext(this IServiceCollection services, IConfiguration configuration) =>
+    services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseMySQL(configuration.GetConnectionString("DefaultConnection"),
+            b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
         public static void ConfigureIdentity(this IServiceCollection services)
         {
@@ -50,7 +56,7 @@ namespace FullStackAuth_WebAPI.Extensions
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtSettings = configuration.GetSection("JwtSettings");
-            var secretKey = "SocialMediaWebAPISecret";
+            var secretKey = "dCCWebAPISuperSecretKey";
 
             services.AddAuthentication(opt =>
             {

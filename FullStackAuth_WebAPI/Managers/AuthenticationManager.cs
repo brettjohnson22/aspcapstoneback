@@ -42,7 +42,7 @@ namespace FullStackAuth_WebAPI.Managers
         }
         private SigningCredentials GetSigningCredentials()
         {
-            var key = Encoding.UTF8.GetBytes("SocialMediaWebAPISecret");
+            var key = Encoding.UTF8.GetBytes("dCCWebAPISuperSecretKey");
             var secret = new SymmetricSecurityKey(key);
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
@@ -51,7 +51,7 @@ namespace FullStackAuth_WebAPI.Managers
         {
             var claims = new List<Claim>
             {
-                new Claim("username", _user.UserName),
+                new Claim("userName", _user.UserName),
                 new Claim("email", _user.Email),
                 new Claim("id", _user.Id)
             };

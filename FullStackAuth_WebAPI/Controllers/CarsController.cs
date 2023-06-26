@@ -1,6 +1,6 @@
 ﻿using FullStackAuth_WebAPI.Data;
+using FullStackAuth_WebAPI.DataTransferObjects;
 using FullStackAuth_WebAPI.Models;
-//using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,11 +15,11 @@ namespace FullStackAuth_WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CarController : ControllerBase
+    public class CarsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public CarController(ApplicationDbContext context)
+        public CarsController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -30,8 +29,24 @@ namespace FullStackAuth_WebAPI.Controllers
         {
             try
             {
+
+                var cars = _context.Cars.Include(c => c.Owner).ToList();
+
                 // Retrieve all cars from the database, including the owner object
-                var cars = _context.Cars.Include(u => u.Owner);
+                //var cars = _context.Cars.Select(c => new CarWithUserDto
+                //{
+                //    Id = c.Id,
+                //    Make = c.Make,
+                //    Model = c.Model,
+                //    Year = c.Year,
+                //    Owner = new UserForDisplayDto
+                //    {
+                //        Id = c.Owner.Id,
+                //        FirstName = c.Owner.FirstName,
+                //        LastName = c.Owner.LastName,
+                //        UserName = c.Owner.UserName,
+                //    }
+                //}).ToList();
 
                 // Return the list of cars as a 200 OK response
                 return StatusCode(200, cars);
@@ -42,7 +57,8 @@ namespace FullStackAuth_WebAPI.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpGet("my-cars"), Authorize]
+
+        [HttpGet("myCars"), Authorize]
         public IActionResult GetUsersCars()
         {
             try
@@ -51,7 +67,7 @@ namespace FullStackAuth_WebAPI.Controllers
                 string userId = User.FindFirstValue("id");
 
                 // Retrieve all cars that belong to the authenticated user, including the owner object
-                var cars = _context.Cars.Include(u => u.Owner).Where(c => c.OwnerId.Equals(userId));
+                var cars = _context.Cars.Where(c => c.OwnerId.Equals(userId));
 
                 // Return the list of cars as a 200 OK response
                 return StatusCode(200, cars);
@@ -102,9 +118,8 @@ namespace FullStackAuth_WebAPI.Controllers
                     return Unauthorized();
                 }
 
-                // Set the car's owner ID and owner object to the authenticated user
+                // Set the car's owner ID  the authenticated user's ID we found earlier
                 data.OwnerId = userId;
-                data.Owner = _context.Users.Find(userId);
 
                 // Add the car to the database and save changes
                 _context.Cars.Add(data);

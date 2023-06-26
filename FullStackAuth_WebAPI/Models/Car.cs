@@ -21,6 +21,6 @@ namespace FullStackAuth_WebAPI.Models
         [ForeignKey("Owner")]
         public string OwnerId { get; set; }
 
-        public virtual User Owner { get; set; }
+        public User Owner { get; set; }
     }
 }
